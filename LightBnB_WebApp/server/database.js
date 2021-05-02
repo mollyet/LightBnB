@@ -155,11 +155,6 @@ exports.getAllReservations = getAllReservations;
 
   // 6
   return pool.query(queryString, queryParams).then((res) => res.rows);
-  // const limitedProperties = {};
-  // for (let i = 1; i <= limit; i++) {
-  //   limitedProperties[i] = properties[i];
-  // }
-  // return Promise.resolve(limitedProperties);
 };
 exports.getAllProperties = getAllProperties;
 
@@ -169,9 +164,31 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function (property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
+ 
+  let queryString = `
+  INSERT INTO properties(owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, number_of_bedrooms, number_of_bathrooms, parking_spaces, country, province, city, street, post_code) 
+  VALUES $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14 
+  RETURNING *;
+  `;
+  
+  const input = [
+    property.owner_id,
+    property.title,
+    property.description,
+    property.thumbnail_photo_url,
+    property.cover_photo_url,
+    property.cost_per_night,
+    property.number_of_bedrooms,
+    property.number_of_bathrooms,
+    property.parking_spaces,
+    property.country,
+    property.province,
+    property.city,
+    property.street,
+    property.post_code
+  ];
+  return pool.query(queryString, input)
+  .then((res) => res.rows[0])
 };
+
 exports.addProperty = addProperty;
